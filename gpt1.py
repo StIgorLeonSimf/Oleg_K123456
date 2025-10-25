@@ -39,8 +39,9 @@
 
 #
 # asyncio.run(main())
-
+import os.path
 import tkinter as tk
+from tkinter import filedialog as fd
 from PIL import Image, ImageTk
 import requests
 from io import BytesIO
@@ -49,9 +50,10 @@ from g4f.client import AsyncClient
 from translate import Translator
 
 
+
 async def gen_url(nm):
     client = AsyncClient()
-
+    print('Начало генерации!!!')
     response = await client.images.generate(
         prompt=nm,
         model="flux",
@@ -65,13 +67,14 @@ async def gen_url(nm):
 
 
 def load_image(url):
+    global img_s
     try:
         resp = requests.get(url)
         resp.raise_for_status()
         image_data = BytesIO(resp.content)
-        img = Image.open(image_data)
-        img.thumbnail((600, 480), Image.Resampling.LANCZOS)
-        return ImageTk.PhotoImage(img)
+        img_s = Image.open(image_data)
+        img_s.thumbnail((600, 480), Image.Resampling.LANCZOS)
+        return ImageTk.PhotoImage(img_s)
 
     except Exception as er:
         print(f'Ошибка - {er}')
@@ -91,9 +94,26 @@ def open_img():
         label.image = img
 
 
+def save_picture():
+    global img_s
+    if img_s is None:
+        print('Рисунок не генерировался!!!')
+        return
+    default_name = os.path.basename(files_name)
+    fp = fd.asksaveasfilename(
+        defaultextension='.png',
+        initialfile=default_name,
+        filetypes=[('PNG files', '*.png'), ('All files', '*.*')]
+    )
+    if fp:
+        img_s.save(fp)
+        print(f'File: {fp} saved')
+
+
 if __name__ == '__main__':
     transl_ru_en = Translator(from_lang='ru', to_lang='en')
-
+    files_name = 'WithoutName.png'
+    img_s = None
     # nm = 'Kittes'
     # url = 'https://cataas.com/cat'
     root = tk.Tk()
@@ -108,7 +128,7 @@ if __name__ == '__main__':
     text.insert(0, 'Kittes')
     btn = tk.Button(frame1, text='Forward', width=10, command=open_img)
     btn.grid(row=1, column=0)
-    btn_s = tk.Button(frame1, text='Save', width=10, command=open_img)
+    btn_s = tk.Button(frame1, text='Save', width=10, command=save_picture)
     btn_s.grid(row=1, column=1)
     label = tk.Label(frame2)
     label.pack()
