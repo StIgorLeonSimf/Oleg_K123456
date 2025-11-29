@@ -1,3 +1,5 @@
+from functools import reduce
+
 ls = [22, 33, 44, 55]
 ls1 = [2, 3, 4, 5]
 print(ls)
@@ -20,7 +22,7 @@ res = list(map(lambda n, m: n - m, ls, ls1))
 # res = list(map(lambda n, m: n > m, ls, ls1))
 print(res)
 for k, j in zip(ls, ls1):
-    print(k-j, end='  ')
+    print(k - j, end='  ')
 print(list(zip(ls, ls1)))
 
 # for i in res:
@@ -41,3 +43,15 @@ print(list(zip(ls, ls1)))
 # print(res)
 # print(res1)
 # print(res2)
+
+def prim(n, m):
+    print('N =', n)
+    print('M =', m)
+    print('res = ', str(n) + str(m))
+    return str(n) + str(m)
+
+city = ['У', 'ф', 'а', '-', 4, 5]
+
+# res = reduce(lambda n, m: str(m) + str(n), city)
+res = reduce(prim, city)
+print(res)
